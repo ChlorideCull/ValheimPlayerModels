@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Linq;
 using UnityEngine;
 
 namespace ValheimPlayerModels.Loaders
@@ -61,13 +62,18 @@ namespace ValheimPlayerModels.Loaders
             #region Convert Material Shaders
 
             Renderer[] renderers = avatarInstance.AvatarObject.GetComponentsInChildren<Renderer>();
+            var playerShader = Shader.Find("Custom/Player") ?? ((Shader[])Resources.FindObjectsOfTypeAll(typeof(Shader))).FirstOrDefault(x => x.name == "Custom/Player");
+            if (playerShader == null)
+            {
+                Plugin.Log.LogError("Couldn't find Custom/Player shader!");
+            }
             foreach (Renderer renderer in renderers)
             {
                 foreach (Material mat in renderer.sharedMaterials)
                 {
                     if (mat && mat.shader.name == "Valheim/Standard")
                     {
-                        mat.shader = Shader.Find("Custom/Player");
+                        mat.shader = playerShader;
 
                         var mainTex = mat.HasProperty("_MainTex") ? mat.GetTexture("_MainTex") as Texture2D : null;
                         var bumpMap = mat.HasProperty("_BumpMap") ? mat.GetTexture("_BumpMap") : null;
